@@ -1,6 +1,5 @@
-from typing import Any, Dict, Set, Optional
+from typing import Any
 from datetime import datetime
-from copy import copy
 
 from vnpy.event import Event
 from vnpy.trader.engine import (
@@ -43,14 +42,14 @@ class PortfolioEngine(BaseEngine):
         """"""
         super().__init__(main_engine, event_engine, APP_NAME)
 
-        self.get_tick: Optional[TickData] = self.main_engine.get_tick
-        self.get_contract: Optional[ContractData] = self.main_engine.get_contract
+        self.get_tick: TickData | None = self.main_engine.get_tick
+        self.get_contract: ContractData | None = self.main_engine.get_contract
 
-        self.subscribed: Set[str] = set()
-        self.result_symbols: Set[str] = set()
-        self.order_reference_map: Dict[str, str] = {}
-        self.contract_results: Dict[str, ContractResult] = {}
-        self.portfolio_results: Dict[str, PortfolioResult] = {}
+        self.subscribed: set[str] = set()
+        self.result_symbols: set[str] = set()
+        self.order_reference_map: dict[str, str] = {}
+        self.contract_results: dict[str, ContractResult] = {}
+        self.portfolio_results: dict[str, PortfolioResult] = {}
 
         self.timer_count: int = 0
         self.timer_interval: int = 5
@@ -87,7 +86,7 @@ class PortfolioEngine(BaseEngine):
         vt_symbol: str = trade.vt_symbol
         key: set = (reference, vt_symbol)
 
-        contract_result: Optional[ContractResult] = self.contract_results.get(key, None)
+        contract_result: ContractResult | None = self.contract_results.get(key, None)
         if not contract_result:
             contract_result: ContractResult = ContractResult(self, reference, vt_symbol)
             self.contract_results[key] = contract_result
@@ -102,7 +101,7 @@ class PortfolioEngine(BaseEngine):
         if trade.vt_symbol in self.subscribed:
             return
 
-        contract: Optional[ContractData] = self.main_engine.get_contract(trade.vt_symbol)
+        contract: ContractData | None = self.main_engine.get_contract(trade.vt_symbol)
         if not contract:
             return
 
@@ -147,7 +146,7 @@ class PortfolioEngine(BaseEngine):
 
     def load_data(self) -> None:
         """"""
-        data: Optional[dict] = load_json(self.data_filename)
+        data: dict | None = load_json(self.data_filename)
         if not data:
             return
 
@@ -178,7 +177,7 @@ class PortfolioEngine(BaseEngine):
 
     def save_data(self) -> None:
         """"""
-        data: Dict[str, Any] = {"date": datetime.now().strftime("%Y-%m-%d")}
+        data: dict[str, Any] = {"date": datetime.now().strftime("%Y-%m-%d")}
 
         for contract_result in self.contract_results.values():
             key: str = f"{contract_result.reference},{contract_result.vt_symbol}"
@@ -191,18 +190,18 @@ class PortfolioEngine(BaseEngine):
 
     def load_setting(self) -> None:
         """"""
-        setting: Optional[dict] = load_json(self.setting_filename)
+        setting: dict | None = load_json(self.setting_filename)
         if "timer_interval" in setting:
             self.timer_interval = setting["timer_interval"]
 
     def save_setting(self) -> None:
         """"""
-        setting: Dict[str, int] = {"timer_interval": self.timer_interval}
+        setting: dict[str, int] = {"timer_interval": self.timer_interval}
         save_json(self.setting_filename, setting)
 
     def load_order(self) -> None:
         """"""
-        order_data: Optional[dict] = load_json(self.order_filename)
+        order_data: dict | None = load_json(self.order_filename)
 
         date: str = order_data.get("date", "")
         today: str = datetime.now().strftime("%Y-%m-%d")
@@ -211,7 +210,7 @@ class PortfolioEngine(BaseEngine):
 
     def save_order(self) -> None:
         """"""
-        order_data: Dict[str, Any] = {
+        order_data: dict[str, Any] = {
             "date": datetime.now().strftime("%Y-%m-%d"),
             "data": self.order_reference_map
         }
@@ -225,7 +224,7 @@ class PortfolioEngine(BaseEngine):
 
     def get_portfolio_result(self, reference: str) -> PortfolioResult:
         """"""
-        portfolio_result: Optional[PortfolioResult] = self.portfolio_results.get(reference, None)
+        portfolio_result: PortfolioResult | None = self.portfolio_results.get(reference, None)
         if not portfolio_result:
             portfolio_result = PortfolioResult(reference)
             self.portfolio_results[reference] = portfolio_result

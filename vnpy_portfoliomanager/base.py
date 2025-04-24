@@ -1,4 +1,4 @@
-from typing import Dict, List, TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from vnpy.trader.object import TickData, TradeData, ContractData
 from vnpy.trader.constant import Direction
@@ -20,7 +20,7 @@ class ContractResult:
         """"""
         super().__init__()
 
-        self.engine: "PortfolioEngine" = engine
+        self.engine: PortfolioEngine = engine
 
         self.reference: str = reference
         self.vt_symbol: str = vt_symbol
@@ -32,8 +32,8 @@ class ContractResult:
         self.holding_pnl: float = 0
         self.total_pnl: float = 0
 
-        self.trades: Dict[str, TradeData] = {}
-        self.new_trades: List[TradeData] = []
+        self.trades: dict[str, TradeData] = {}
+        self.new_trades: list[TradeData] = []
 
         self.long_volume: float = 0
         self.short_volume: float = 0
@@ -57,8 +57,8 @@ class ContractResult:
         """"""
         vt_symbol: str = self.vt_symbol
 
-        contract: Optional[ContractData] = self.engine.get_contract(vt_symbol)
-        tick: Optional[TickData] = self.engine.get_tick(vt_symbol)
+        contract: ContractData | None = self.engine.get_contract(vt_symbol)
+        tick: TickData | None = self.engine.get_tick(vt_symbol)
         if not contract or not tick:
             return
 
