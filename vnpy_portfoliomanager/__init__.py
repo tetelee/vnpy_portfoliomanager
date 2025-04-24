@@ -22,18 +22,20 @@
 
 
 from pathlib import Path
-from typing import Type
 
-import importlib_metadata
 from vnpy.trader.app import BaseApp
 
 from .engine import PortfolioEngine, APP_NAME
 
 
-try:
-    __version__ = importlib_metadata.version("vnpy_portfoliomanager")
-except importlib_metadata.PackageNotFoundError:
-    __version__ = "dev"
+__all__ = [
+    "PortfolioEngine",
+    "APP_NAME",
+    "PortfolioManagerApp",
+]
+
+
+__version__ = "1.1.0"
 
 
 class PortfolioManagerApp(BaseApp):
@@ -43,7 +45,7 @@ class PortfolioManagerApp(BaseApp):
     app_module: str = __module__
     app_path: Path = Path(__file__).parent
     display_name: str = "投资组合"
-    engine_class: Type[PortfolioEngine] = PortfolioEngine
+    engine_class: type[PortfolioEngine] = PortfolioEngine
     widget_name: str = "PortfolioManager"
     icon_name: str = str(app_path.joinpath("ui", "portfolio.ico"))
 
