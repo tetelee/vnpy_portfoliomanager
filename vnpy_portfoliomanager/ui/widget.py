@@ -40,7 +40,7 @@ class PortfolioManager(QtWidgets.QWidget):
 
         self.portfolio_engine: PortfolioEngine = main_engine.get_engine(APP_NAME)
 
-        self.contract_items: dict[tuple(str, str), QtWidgets.QTreeWidgetItem] = {}
+        self.contract_items: dict[tuple[str, str], QtWidgets.QTreeWidgetItem] = {}
         self.portfolio_items: dict[str, QtWidgets.QTreeWidgetItem] = {}
 
         self.init_ui()
@@ -139,7 +139,7 @@ class PortfolioManager(QtWidgets.QWidget):
         portfolio_item: QtWidgets.QTreeWidgetItem | None = self.portfolio_items.get(reference, None)
 
         if not portfolio_item:
-            portfolio_item: QtWidgets.QTreeWidgetItem = QtWidgets.QTreeWidgetItem()
+            portfolio_item = QtWidgets.QTreeWidgetItem()
             portfolio_item.setText(0, reference)
             for i in range(2, self.column_count):
                 portfolio_item.setTextAlignment(i, QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -154,10 +154,10 @@ class PortfolioManager(QtWidgets.QWidget):
     def get_contract_item(self, reference: str, vt_symbol: str) -> QtWidgets.QTreeWidgetItem:
         """"""
         key: tuple[str, str] = (reference, vt_symbol)
-        contract_item: str | None = self.contract_items.get(key, None)
+        contract_item: QtWidgets.QTreeWidgetItem | None = self.contract_items.get(key, None)
 
         if not contract_item:
-            contract_item: QtWidgets.QTreeWidgetItem = QtWidgets.QTreeWidgetItem()
+            contract_item = QtWidgets.QTreeWidgetItem()
             contract_item.setText(1, vt_symbol)
             for i in range(2, self.column_count):
                 contract_item.setTextAlignment(i, QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -230,7 +230,7 @@ class PortfolioManager(QtWidgets.QWidget):
 
     def set_reference_filter(self, filter: str) -> None:
         """"""
-        filter: str = self.reference_combo.currentText()
+        filter = self.reference_combo.currentText()
         self.monitor.set_filter(filter)
 
     def show(self) -> None:
@@ -301,7 +301,7 @@ class PortfolioTradeMonitor(QtWidgets.QTableWidget):
 
     def set_filter(self, filter: str) -> None:
         """"""
-        self.filter: str = filter
+        self.filter = filter
 
         for row in range(self.rowCount()):
             if not filter:

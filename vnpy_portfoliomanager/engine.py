@@ -1,4 +1,5 @@
 from typing import Any
+from collections.abc import Callable
 from datetime import datetime
 
 from vnpy.event import Event
@@ -42,13 +43,13 @@ class PortfolioEngine(BaseEngine):
         """"""
         super().__init__(main_engine, event_engine, APP_NAME)
 
-        self.get_tick: TickData | None = self.main_engine.get_tick
-        self.get_contract: ContractData | None = self.main_engine.get_contract
+        self.get_tick: Callable[[str], TickData | None] = self.main_engine.get_tick
+        self.get_contract: Callable[[str], ContractData | None] = self.main_engine.get_contract
 
         self.subscribed: set[str] = set()
         self.result_symbols: set[str] = set()
         self.order_reference_map: dict[str, str] = {}
-        self.contract_results: dict[str, ContractResult] = {}
+        self.contract_results: dict[tuple[str, str], ContractResult] = {}
         self.portfolio_results: dict[str, PortfolioResult] = {}
 
         self.timer_count: int = 0
@@ -84,11 +85,11 @@ class PortfolioEngine(BaseEngine):
             return
 
         vt_symbol: str = trade.vt_symbol
-        key: set = (reference, vt_symbol)
+        key: tuple[str, str] = (reference, vt_symbol)
 
         contract_result: ContractResult | None = self.contract_results.get(key, None)
         if not contract_result:
-            contract_result: ContractResult = ContractResult(self, reference, vt_symbol)
+            contract_result = ContractResult(self, reference, vt_symbol)
             self.contract_results[key] = contract_result
 
         contract_result.update_trade(trade)
@@ -121,16 +122,16 @@ class PortfolioEngine(BaseEngine):
         for contract_result in self.contract_results.values():
             contract_result.calculate_pnl()
 
-            portfolio_result: PortfolioResult = self.get_portfolio_result(contract_result.reference)
+            portfolio_result = self.get_portfolio_result(contract_result.reference)
             portfolio_result.trading_pnl += contract_result.trading_pnl
             portfolio_result.holding_pnl += contract_result.holding_pnl
             portfolio_result.total_pnl += contract_result.total_pnl
 
-            event: Event = Event(EVENT_PM_CONTRACT, contract_result.get_data())
+            event = Event(EVENT_PM_CONTRACT, contract_result.get_data())
             self.event_engine.put(event)
 
         for portfolio_result in self.portfolio_results.values():
-            event: Event = Event(EVENT_PM_PORTFOLIO, portfolio_result.get_data())
+            event = Event(EVENT_PM_PORTFOLIO, portfolio_result.get_data())
             self.event_engine.put(event)
 
     def process_contract_event(self, event: Event) -> None:
@@ -160,8 +161,8 @@ class PortfolioEngine(BaseEngine):
             if date == today:
                 pos: float = d["open_pos"]
             else:
-                pos: float = d["last_pos"]
-                date_changed: bool = True
+                pos = d["last_pos"]
+                date_changed = True
 
             self.result_symbols.add(vt_symbol)
             self.contract_results[(reference, vt_symbol)] = ContractResult(
@@ -190,7 +191,7 @@ class PortfolioEngine(BaseEngine):
 
     def load_setting(self) -> None:
         """"""
-        setting: dict | None = load_json(self.setting_filename)
+        setting: dict = load_json(self.setting_filename)
         if "timer_interval" in setting:
             self.timer_interval = setting["timer_interval"]
 
@@ -201,7 +202,7 @@ class PortfolioEngine(BaseEngine):
 
     def load_order(self) -> None:
         """"""
-        order_data: dict | None = load_json(self.order_filename)
+        order_data: dict = load_json(self.order_filename)
 
         date: str = order_data.get("date", "")
         today: str = datetime.now().strftime("%Y-%m-%d")

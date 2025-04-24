@@ -15,7 +15,7 @@ class ContractResult:
         engine: "PortfolioEngine",
         reference: str,
         vt_symbol: str,
-        open_pos: int = 0
+        open_pos: float = 0
     ) -> None:
         """"""
         super().__init__()
@@ -25,8 +25,8 @@ class ContractResult:
         self.reference: str = reference
         self.vt_symbol: str = vt_symbol
 
-        self.open_pos: int = open_pos
-        self.last_pos: int = open_pos
+        self.open_pos: float = open_pos
+        self.last_pos: float = open_pos
 
         self.trading_pnl: float = 0
         self.holding_pnl: float = 0
