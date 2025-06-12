@@ -1,4 +1,3 @@
-from typing import Dict, List, Optional, Tuple, Union
 from vnpy.trader.object import TradeData
 from vnpy.event.engine import Event
 from vnpy.trader.ui import QtWidgets, QtCore, QtGui
@@ -11,7 +10,6 @@ from vnpy.trader.ui.widget import (
     TimeCell
 )
 
-from ..base import ContractResult, PortfolioResult
 from ..engine import (
     APP_NAME,
     EVENT_PM_CONTRACT,
@@ -42,8 +40,8 @@ class PortfolioManager(QtWidgets.QWidget):
 
         self.portfolio_engine: PortfolioEngine = main_engine.get_engine(APP_NAME)
 
-        self.contract_items: Dict[Tuple(str, str), QtWidgets.QTreeWidgetItem] = {}
-        self.portfolio_items: Dict[str, QtWidgets.QTreeWidgetItem] = {}
+        self.contract_items: dict[tuple[str, str], QtWidgets.QTreeWidgetItem] = {}
+        self.portfolio_items: dict[str, QtWidgets.QTreeWidgetItem] = {}
 
         self.init_ui()
         self.register_event()
@@ -53,7 +51,7 @@ class PortfolioManager(QtWidgets.QWidget):
         """"""
         self.setWindowTitle("投资组合")
 
-        labels: List[str] = [
+        labels: list[str] = [
             "组合名称",
             "本地代码",
             "开盘仓位",
@@ -130,7 +128,7 @@ class PortfolioManager(QtWidgets.QWidget):
 
     def update_trades(self) -> None:
         """"""
-        trades: List[TradeData] = self.main_engine.get_all_trades()
+        trades: list[TradeData] = self.main_engine.get_all_trades()
         for trade in trades:
             # 过滤掉没有用reference的成交
             if hasattr(trade, "reference"):
@@ -138,10 +136,10 @@ class PortfolioManager(QtWidgets.QWidget):
 
     def get_portfolio_item(self, reference: str) -> QtWidgets.QTreeWidgetItem:
         """"""
-        portfolio_item: Optional[QtWidgets.QTreeWidgetItem] = self.portfolio_items.get(reference, None)
+        portfolio_item: QtWidgets.QTreeWidgetItem | None = self.portfolio_items.get(reference, None)
 
         if not portfolio_item:
-            portfolio_item: QtWidgets.QTreeWidgetItem = QtWidgets.QTreeWidgetItem()
+            portfolio_item = QtWidgets.QTreeWidgetItem()
             portfolio_item.setText(0, reference)
             for i in range(2, self.column_count):
                 portfolio_item.setTextAlignment(i, QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -155,11 +153,11 @@ class PortfolioManager(QtWidgets.QWidget):
 
     def get_contract_item(self, reference: str, vt_symbol: str) -> QtWidgets.QTreeWidgetItem:
         """"""
-        key: Tuple[str, str] = (reference, vt_symbol)
-        contract_item: Optional[str] = self.contract_items.get(key, None)
+        key: tuple[str, str] = (reference, vt_symbol)
+        contract_item: QtWidgets.QTreeWidgetItem | None = self.contract_items.get(key, None)
 
         if not contract_item:
-            contract_item: QtWidgets.QTreeWidgetItem = QtWidgets.QTreeWidgetItem()
+            contract_item = QtWidgets.QTreeWidgetItem()
             contract_item.setText(1, vt_symbol)
             for i in range(2, self.column_count):
                 contract_item.setTextAlignment(i, QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -232,7 +230,7 @@ class PortfolioManager(QtWidgets.QWidget):
 
     def set_reference_filter(self, filter: str) -> None:
         """"""
-        filter: str = self.reference_combo.currentText()
+        filter = self.reference_combo.currentText()
         self.monitor.set_filter(filter)
 
     def show(self) -> None:
@@ -252,7 +250,7 @@ class PortfolioTradeMonitor(QtWidgets.QTableWidget):
 
     def init_ui(self) -> None:
         """"""
-        labels: List[str] = [
+        labels: list[str] = [
             "组合",
             "成交号",
             "委托号",
@@ -303,7 +301,7 @@ class PortfolioTradeMonitor(QtWidgets.QTableWidget):
 
     def set_filter(self, filter: str) -> None:
         """"""
-        self.filter: str = filter
+        self.filter = filter
 
         for row in range(self.rowCount()):
             if not filter:
